@@ -3356,18 +3356,17 @@ static int NET_ParseUrl(const char *url, char *proto, char *host, int *port,
     if ((thost = strchr(urlcopy, '@')) != NULL)
       urlcopy = thost+1;
 
-    if (strlen(urlcopy) > SHORTLEN-1)
-    {
-       free(urlcopyorig);
-       return 1;
-    }
-    strcpy(host,urlcopy);
+    strncpy(host,urlcopy,SHORTLEN-1);
     thost = host;
     while (*urlcopy != '/' && *urlcopy != ':' && *urlcopy) {
       thost++;
       urlcopy++;
     }
     /* we should either be at the end of the string, have a /, or have a : */
+    if (thost > host + (SHORTLEN-1)) {
+       free(urlcopyorig);
+       return 1;
+    }
     *thost = '\0';
     if (*urlcopy == ':') {
       /* follows a port number */
@@ -3377,16 +3376,15 @@ static int NET_ParseUrl(const char *url, char *proto, char *host, int *port,
     }
   } else {
     /* do this for ftp */
-    if (strlen(urlcopy) > SHORTLEN-1)
-    {
-       free(urlcopyorig);
-       return 1;
-    }
-    strcpy(host,urlcopy);
+    strncpy(host,urlcopy,SHORTLEN-1);
     thost = host;
     while (*urlcopy != '/' && *urlcopy) {
       thost++;
       urlcopy++; 
+    }
+    if (thost > host + (SHORTLEN-1)) {
+       free(urlcopyorig);
+       return 1;
     }
     *thost = '\0';
     /* Now, we should either be at the end of the string, or have a / */
